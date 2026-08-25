@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PHQueue — PAD HABITS</title>
+
+  <style>
+    :root {
+      --black: #111111;
+      --dark: #1c1c1c;
+      --gray: #6b6b6b;
+      --light-gray: #f1f1f1;
+      --border: #dedede;
+      --white: #ffffff;
+      --lime: #9adc0d;
+      --lime-dark: #557e00;
+      --red: #c62828;
+      --yellow: #f4b400;
+      --green: #2e7d32;
+      --shadow: 0 4px 16px rgba(0,0,0,.08);
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+      background: #f7f7f7;
+      color: var(--black);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       SIDEBAR
+       ========================= */
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 230px;
+      background: var(--black);
+      color: white;
+      padding: 20px 14px;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 10px 28px;
+    }
+
+    .brandMark {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--lime);
+      color: var(--black);
+      font-weight: 1000;
+      font-size: 15px;
+    }
+
+    .brandTitle {
+      font-size: 18px;
+      font-weight: 1000;
+    }
+
+    .brandSub {
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      opacity: .65;
+      margin-top: 2px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .navBtn {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: left;
+      font-weight: 800;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .navBtn:hover {
+      background: #282828;
+    }
+
+    .navBtn.active {
+      background: var(--lime);
+      color: var(--black);
+    }
+
+    /* =========================
+       MAIN
+       ========================= */
+
+    .main {
+      margin-left: 230px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 28px;
+    }
+
+    .statLabel {
+      font-size: 10px;
+      color: var(--gray);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .statValue {
+      font-size: 20px;
+      font-weight: 1000;
+      margin-top: 2px;
+    }
+
+    .limeText {
+      color: var(--lime-dark);
+    }
+
+    .sessionArea {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .content {
+      padding: 22px;
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .pageHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .pageTitle {
+      margin: 0;
+      font-size: 27px;
+      font-weight: 1000;
+    }
+
+    .pageDescription {
+      color: var(--gray);
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    /* =========================
+       BUTTONS
+       ========================= */
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-weight: 900;
+      transition: .15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btnPrimary {
+      background: var(--black);
+      color: white;
+    }
+
+    .btnLime {
+      background: var(--lime);
+      color: var(--black);
+    }
+
+    .btnDanger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btnSecondary {
+      background: #e8e8e8;
+      color: var(--black);
+    }
+
+    .btnSmall {
+      padding: 7px 10px;
+      font-size: 11px;
+    }
+
+    /* =========================
+       CARDS
+       ========================= */
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 15px;
+    }
+
+    .grid2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* =========================
+       FORMS
+       ========================= */
+
+    .formGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--gray);
+    }
+
+    .field input,
+    .field select {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px;
+      background: white;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--black);
+    }
+
+    .formActions {
+      display: flex;
+      gap: 8px;
+      align-items: end;
+    }
+
+    /* =========================
+       TABLE
+       ========================= */
+
+    .tableWrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 11px;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--gray);
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 11px;
+      border-bottom: 1px solid #eeeeee;
+      font-size: 13px;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    /* =========================
+       BADGES
+       ========================= */
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .badgeWaiting {
+      background: #eef7dc;
+      color: #557e00;
+    }
+
+    .badgePlaying {
+      background: #e4f0ff;
+      color: #165da8;
+    }
+
+    .badgeChecked {
+      background: #f0f0f0;
+      color: #555;
+    }
+
+    /* =========================
+       STARS
+       ========================= */
+
+    .stars {
+      letter-spacing: -2px;
+      color: var(--yellow);
+      white-space: nowrap;
+    }
+
+    /* =========================
+       COURTS
+       ========================= */
+
+    .courtGrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .courtCard {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .courtHeader {
+      background: var(--black);
+      color: white;
+      padding: 11px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 1000;
+    }
+
+    .courtBody {
+      padding: 15px;
+    }
+
+    .team {
+      padding: 10px;
+      border-radius: 8px;
+      background: #f5f5f5;
+      margin-bottom: 8px;
+    }
+
+    .teamTitle {
+      font-size: 9px;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: var(--gray);
+      margin-bottom: 5px;
+    }
+
+    .playerName {
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .vs {
+      text-align: center;
+      font-size: 10px;
+      color: var(--gray);
+      font-weight: 900;
+      margin: 4px;
+    }
+
+    .courtActions {
+      display: flex;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .courtActions .btn {
+      flex: 1;
+    }
+
+    /* =========================
+       UP NEXT
+       ========================= */
+
+    .queue {
+      display: grid;
+      gap: 10px;
+    }
+
+    .queueItem {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: white;
+    }
+
+    .queueNumber {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--lime);
+      display: grid;
+      place-items: center;
+      font-weight: 1000;
+      flex-shrink: 0;
+    }
+
+    .queuePlayers {
+      flex: 1;
+    }
+
+    /* =========================
+       MODAL
+       ========================= */
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 1000;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .modal.open {
+      display: grid;
+    }
+
+    .modalBox {
+      width: min(550px, 100%);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.25);
+      padding: 22px;
+    }
+
+    .modalHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .modalTitle {
+      font-size: 20px;
+      font-weight: 1000;
+    }
+
+    .closeBtn {
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+    }
+
+    /* =========================
+       TOAST
+       ========================= */
+
+    .toastContainer {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 2000;
+      display: grid;
+      gap: 8px;
+      width: min(380px, calc(100vw - 36px));
+    }
+
+    .toast {
+      color: white;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-weight: 800;
+      font-size: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+
+    .toast.success {
+      background: var(--green);
+    }
+
+    .toast.error {
+      background: var(--red);
+    }
+
+    .toast.info {
+      background: var(--black);
+    }
+
+    /* =========================
+       EMPTY
+       ========================= */
+
+    .empty {
+      text-align: center;
+      padding: 45px 20px;
+      color: var(--gray);
+    }
+
+    .empty strong {
+      display: block;
+      color: var(--black);
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    .mobileMenu {
+      display: none;
+    }
+
+    @media(max-width: 950px) {
+      .grid3,
+      .grid4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .formGrid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .courtGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width: 700px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .mobileMenu {
+        display: block;
+      }
+
+      .stats {
+        gap: 12px;
+      }
+
+      .statValue {
+        font-size: 16px;
+      }
+
+      .grid2,
+      .grid3,
+      .grid4,
+      .formGrid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        padding: 10px;
+      }
+
+      .content {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       SIDEBAR
+       ========================= -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brandMark">PH</div>
+
+      <div>
+        <div class="brandTitle">PHQueue</div>
+        <div class="brandSub">PAD HABITS</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+
+      <button
+        class="navBtn active"
+        data-page="directory"
+      >
+        👥
+        Directory
+      </button>
+
+      <button
+        class="navBtn"
+        data-page="live"
+      >
+        🏓
+        Live Courts
+      </button>
+
+      <button
+        class="navBtn"
+        data-page="leaderboards"
+      >
+        🏆
+        Leaderboards
+      </button>
+
+    </nav>
+
+  </aside>
+
+  <main class="main">
+
+    <!-- =========================
+         TOPBAR
+         ========================= -->
+
+    <header class="topbar">
+
+      <div class="mobileMenu">
+        <strong>PHQueue</strong>
+      </div>
+
+      <div class="stats">
+
+        <div>
+          <div class="statLabel">
+            Active Courts
+          </div>
+
+          <div
+            class="statValue"
+            id="activeCourts"
+          >
+            0 / 0
+          </div>
+        </div>
+
+        <div>
+          <div class="statLabel">
+            Checked In
+          </div>
+
+          <div
+            class="statValue"
+            id="checkedIn"
+          >
+            0
+          </div>
+        </div>
+
+        <div>
+          <div class="statLabel">
+            Queue
+          </div>
+
+          <div
+            class="statValue limeText"
+            id="queueCount"
+          >
+            0
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sessionArea">
+
+        <span
+          id="sessionStatus"
+          class="badge badgeChecked"
+        >
+          Session inactive
+        </span>
+
+        <button
+          class="btn btnLime btnSmall"
+          id="sessionButton"
+        >
+          Start Session
+        </button>
+
+      </div>
+
+    </header>
+
+    <section class="content">
+
+      <!-- =========================
+           DIRECTORY
+           ========================= -->
+
+      <section
+        class="page active"
+        id="page-directory"
+      >
+
+        <div class="pageHeader">
+
+          <div>
+            <h1 class="pageTitle">
+              Player Directory
+            </h1>
+
+            <div class="pageDescription">
+              Register players, manage check-in, and view player ratings.
+            </div>
+          </div>
+
+          <button
+            class="btn btnPrimary"
+            id="openRegister"
+          >
+            + Register Player
+          </button>
+
+        </div>
+
+        <div class="card">
+
+          <div class="tableWrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Level</th>
+                  <th>Elo</th>
+                  <th>Games</th>
+                  <th>Wins</th>
+                  <th>Win %</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody id="playersTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =========================
+           LIVE
+           ========================= -->
+
+      <section
+        class="page"
+        id="page-live"
+      >
+
+        <div class="pageHeader">
+
+          <div>
+            <h1 class="pageTitle">
+              Live Courts
+            </h1>
+
+            <div class="pageDescription">
+              Active matches and the Up Next queue.
+            </div>
+          </div>
+
+          <div>
+            <button
+              class="btn btnSecondary btnSmall"
+              id="courtMinus"
+            >
+              − Court
+            </button>
+
+            <button
+              class="btn btnSecondary btnSmall"
+              id="courtPlus"
+            >
+              + Court
+            </button>
+          </div>
+
+        </div>
+
+        <div
+          class="courtGrid"
+          id="courts"
+        ></div>
+
+        <div style="height:20px"></div>
+
+        <div class="card">
+
+          <div class="pageHeader">
+            <div>
+              <h2 style="margin:0">
+                Up Next
+              </h2>
+
+              <div class="pageDescription">
+                Players waiting for their next match.
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="queue"
+            id="upNext"
+          ></div>
+
+        </div>
+
+      </section>
+
+      <!-- =========================
+           LEADERBOARDS
+           ========================= -->
+
+      <section
+        class="page"
+        id="page-leaderboards"
+      >
+
+        <div class="pageHeader">
+
+          <div>
+            <h1 class="pageTitle">
+              Leaderboards
+            </h1>
+
+            <div class="pageDescription">
+              Player performance and Elo rankings.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="card">
+
+          <div class="tableWrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Player</th>
+                  <th>Elo</th>
+                  <th>Games</th>
+                  <th>Wins</th>
+                  <th>Win %</th>
+                </tr>
+              </thead>
+
+              <tbody id="leaderboardTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+  <!-- =========================
+       REGISTER MODAL
+       ========================= -->
+
+  <div
+    class="modal"
+    id="registerModal"
+  >
+
+    <div class="modalBox">
+
+      <div class="modalHeader">
+
+        <div class="modalTitle">
+          Register Player
+        </div>
+
+        <button
+          class="closeBtn"
+          id="closeRegister"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <form id="registerForm">
+
+        <div class="formGrid">
+
+          <div class="field">
+            <label>Name</label>
+
+            <input
+              id="playerName"
+              required
+              placeholder="Player name"
+            >
+          </div>
+
+          <div class="field">
+            <label>Gender</label>
+
+            <select id="playerGender">
+              <option value="">
+                Select
+              </option>
+
+              <option value="Male">
+                Male
+              </option>
+
+              <option value="Female">
+                Female
+              </option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Star Level</label>
+
+            <select
+              id="playerStar"
+              required
+            >
+              <option value="1">★ 1</option>
+              <option value="2">★★ 2</option>
+              <option value="3">★★★ 3</option>
+              <option value="4">★★★★ 4</option>
+              <option value="5">★★★★★ 5</option>
+              <option value="6">★★★★★★ 6</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div
+          style="
+            display:flex;
+            justify-content:flex-end;
+            gap:8px;
+            margin-top:18px;
+          "
+        >
+
+          <button
+            type="button"
+            class="btn btnSecondary"
+            id="cancelRegister"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="btn btnLime"
+          >
+            Register
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       TOASTS
+       ========================= -->
+
+  <div
+    class="toastContainer"
+    id="toastContainer"
+  ></div>
+
+
+  <script>
+
+    /* =========================================================
+       APPLICATION STATE
+       ========================================================= */
+
+    const app = {
+      players: [],
+      matches: [],
+      sessions: [],
+      settings: [],
+
+      session: {
+        id: null,
+        active: false,
+        courtCount: 4,
+        revision: 0
+      }
+    };
+
+
+    /* =========================================================
+       API
+       ========================================================= */
+
+    async function api(action, payload = {}) {
+
+      const response = await fetch('/api', {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          action,
+          payload
+        })
+      });
+
+      let result;
+
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error(
+          `Server returned ${response.status}`
+        );
+      }
+
+      if (!response.ok || !result.success) {
+
+        const message =
+          result?.error?.message ||
+          result?.error ||
+          'Something went wrong.';
+
+        throw new Error(message);
+      }
+
+      return result;
+    }
+
+
+    /* =========================================================
+       LOAD STATE
+       ========================================================= */
+
+    async function loadState() {
+
+      try {
+
+        const result =
+          await api('getAppState');
+
+        applyState(result.state);
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+
+      }
+    }
+
+
+    function applyState(state) {
+
+      if (!state) {
+        return;
+      }
+
+      app.players =
+        state.players || [];
+
+      app.matches =
+        state.matches || [];
+
+      app.sessions =
+        state.sessions || [];
+
+      app.settings =
+        state.settings || [];
+
+      app.session =
+        state.session || {
+          id: null,
+          active: false,
+          courtCount: 4,
+          revision: 0
+        };
+
+      renderAll();
+    }
+
+
+    /* =========================================================
+       HELPERS
+       ========================================================= */
+
+    function escapeHtml(value) {
+
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+
+    function stars(level) {
+
+      const n =
+        Math.max(
+          1,
+          Math.min(
+            6,
+            Number(level) || 1
+          )
+        );
+
+      return '★'.repeat(n);
+    }
+
+
+    function winPct(player) {
+
+      if (!player.gamesPlayed) {
+        return 0;
+      }
+
+      return Math.round(
+        (
+          player.wins /
+          player.gamesPlayed
+        ) * 1000
+      ) / 10;
+    }
+
+
+    function playerById(id) {
+
+      return app.players.find(
+        player =>
+          String(player.id) ===
+          String(id)
+      );
+    }
+
+
+    function toast(message, type = 'info') {
+
+      const container =
+        document.getElementById(
+          'toastContainer'
+        );
+
+      const element =
+        document.createElement('div');
+
+      element.className =
+        `toast ${type}`;
+
+      element.textContent =
+        message;
+
+      container.appendChild(element);
+
+      setTimeout(() => {
+        element.remove();
+      }, 3500);
+    }
+
+
+    /* =========================================================
+       RENDER
+       ========================================================= */
+
+    function renderAll() {
+
+      renderStats();
+      renderSession();
+      renderPlayers();
+      renderCourts();
+      renderUpNext();
+      renderLeaderboard();
+    }
+
+
+    function renderStats() {
+
+      const activeMatches =
+        app.matches.filter(
+          match =>
+            match.status === 'Active'
+        );
+
+      const checkedIn =
+        app.players.filter(
+          player =>
+            player.status === 'Waiting' ||
+            player.status === 'Playing'
+        );
+
+      const waiting =
+        app.players.filter(
+          player =>
+            player.status === 'Waiting'
+        );
+
+      document.getElementById(
+        'activeCourts'
+      ).textContent =
+        `${activeMatches.length} / ${app.session.courtCount}`;
+
+      document.getElementById(
+        'checkedIn'
+      ).textContent =
+        checkedIn.length;
+
+      document.getElementById(
+        'queueCount'
+      ).textContent =
+        waiting.length;
+    }
+
+
+    function renderSession() {
+
+      const badge =
+        document.getElementById(
+          'sessionStatus'
+        );
+
+      const button =
+        document.getElementById(
+          'sessionButton'
+        );
+
+      if (app.session.active) {
+
+        badge.textContent =
+          `Session Active`;
+
+        badge.className =
+          'badge badgeWaiting';
+
+        button.textContent =
+          'End Session';
+
+        button.className =
+          'btn btnDanger btnSmall';
+
+      } else {
+
+        badge.textContent =
+          'Session inactive';
+
+        badge.className =
+          'badge badgeChecked';
+
+        button.textContent =
+          'Start Session';
+
+        button.className =
+          'btn btnLime btnSmall';
+      }
+    }
+
+
+    /* =========================================================
+       PLAYERS
+       ========================================================= */
+
+    function renderPlayers() {
+
+      const tbody =
+        document.getElementById(
+          'playersTable'
+        );
+
+      if (!app.players.length) {
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9">
+              <div class="empty">
+                <strong>No players registered</strong>
+                Register your first player to get started.
+              </div>
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+      const sorted =
+        [...app.players].sort(
+          (a, b) =>
+            String(a.name)
+              .localeCompare(
+                String(b.name)
+              )
+        );
+
+      tbody.innerHTML =
+        sorted.map(
+          player => {
+
+            let badgeClass =
+              'badgeChecked';
+
+            if (
+              player.status ===
+              'Waiting'
+            ) {
+              badgeClass =
+                'badgeWaiting';
+            }
+
+            if (
+              player.status ===
+              'Playing'
+            ) {
+              badgeClass =
+                'badgePlaying';
+            }
+
+            const action =
+              player.status ===
+              'Checked Out'
+                ? `
+                  <button
+                    class="btn btnLime btnSmall"
+                    onclick="checkIn('${player.id}')"
+                  >
+                    Check In
+                  </button>
+                `
+                : `
+                  <button
+                    class="btn btnSecondary btnSmall"
+                    onclick="checkOut('${player.id}')"
+                  >
+                    Check Out
+                  </button>
+                `;
+
+            return `
+              <tr>
+
+                <td>
+                  <strong>
+                    ${escapeHtml(player.name)}
+                  </strong>
+                </td>
+
+                <td>
+                  ${escapeHtml(player.gender || '—')}
+                </td>
+
+                <td>
+                  <span class="stars">
+                    ${stars(player.starTier)}
+                  </span>
+                </td>
+
+                <td>
+                  <strong>
+                    ${Number(player.elo || 0)}
+                  </strong>
+                </td>
+
+                <td>
+                  ${Number(player.gamesPlayed || 0)}
+                </td>
+
+                <td>
+                  ${Number(player.wins || 0)}
+                </td>
+
+                <td>
+                  ${winPct(player)}%
+                </td>
+
+                <td>
+                  <span
+                    class="badge ${badgeClass}"
+                  >
+                    ${escapeHtml(player.status)}
+                  </span>
+                </td>
+
+                <td>
+                  ${action}
+                </td>
+
+              </tr>
+            `;
+          }
+        )
+        .join('');
+    }
+
+
+    /* =========================================================
+       COURTS
+       ========================================================= */
+
+    function renderCourts() {
+
+      const container =
+        document.getElementById(
+          'courts'
+        );
+
+      const matches =
+        app.matches.filter(
+          match =>
+            match.status === 'Active'
+        );
+
+      let html = '';
+
+      for (
+        let court = 1;
+        court <= app.session.courtCount;
+        court++
+      ) {
+
+        const match =
+          matches.find(
+            item =>
+              Number(item.court) === court
+          );
+
+        html += renderCourt(
+          court,
+          match
+        );
+      }
+
+      container.innerHTML =
+        html;
+    }
+
+
+    function renderCourt(
+      court,
+      match
+    ) {
+
+      if (!match) {
+
+        return `
+          <div class="courtCard">
+
+            <div class="courtHeader">
+              <span>Court ${court}</span>
+              <span>OPEN</span>
+            </div>
+
+            <div class="courtBody">
+
+              <div class="empty">
+                <strong>
+                  Court available
+                </strong>
+
+                Start a match from Up Next.
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }
+
+      const team1 =
+        getMatchTeam(
+          match,
+          1
+        );
+
+      const team2 =
+        getMatchTeam(
+          match,
+          2
+        );
+
+      return `
+        <div class="courtCard">
+
+          <div class="courtHeader">
+
+            <span>
+              Court ${court}
+            </span>
+
+            <span>
+              LIVE
+            </span>
+
+          </div>
+
+          <div class="courtBody">
+
+            <div class="team">
+
+              <div class="teamTitle">
+                Team 1
+              </div>
+
+              ${team1.map(
+                player =>
+                  `<div class="playerName">
+                    ${escapeHtml(player?.name || 'Unknown')}
+                  </div>`
+              ).join('')}
+
+            </div>
+
+            <div class="vs">
+              VS
+            </div>
+
+            <div class="team">
+
+              <div class="teamTitle">
+                Team 2
+              </div>
+
+              ${team2.map(
+                player =>
+                  `<div class="playerName">
+                    ${escapeHtml(player?.name || 'Unknown')}
+                  </div>`
+              ).join('')}
+
+            </div>
+
+            <div class="courtActions">
+
+              <button
+                class="btn btnLime btnSmall"
+                onclick="completeMatch('${match.id}', 'Team 1')"
+              >
+                Team 1 Wins
+              </button>
+
+              <button
+                class="btn btnPrimary btnSmall"
+                onclick="completeMatch('${match.id}', 'Team 2')"
+              >
+                Team 2 Wins
+              </button>
+
+            </div>
+
+            <div style="margin-top:7px">
+
+              <button
+                class="btn btnDanger btnSmall"
+                style="width:100%"
+                onclick="cancelMatch('${match.id}')"
+              >
+                Cancel Match
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+
+    function getMatchTeam(
+      match,
+      team
+    ) {
+
+      const ids =
+        team === 1
+          ? [
+              match.team1Player1,
+              match.team1Player2
+            ]
+          : [
+              match.team2Player1,
+              match.team2Player2
+            ];
+
+      return ids.map(
+        id =>
+          playerById(id) || {
+            name: 'Unknown'
+          }
+      );
+    }
+
+
+    /* =========================================================
+       UP NEXT
+       ========================================================= */
+
+    function renderUpNext() {
+
+      const container =
+        document.getElementById(
+          'upNext'
+        );
+
+      const waiting =
+        app.players
+          .filter(
+            player =>
+              player.status === 'Waiting'
+          )
+          .sort(
+            (a, b) => {
+
+              const aTime =
+                a.idleTimestamp
+                  ? new Date(
+                      a.idleTimestamp
+                    ).getTime()
+                  : Date.now();
+
+              const bTime =
+                b.idleTimestamp
+                  ? new Date(
+                      b.idleTimestamp
+                    ).getTime()
+                  : Date.now();
+
+              return aTime - bTime;
+            }
+          );
+
+      if (!waiting.length) {
+
+        container.innerHTML = `
+          <div class="empty">
+            <strong>
+              No players waiting
+            </strong>
+
+            Check players in to build the queue.
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML =
+        waiting.map(
+          (player, index) => `
+
+            <div class="queueItem">
+
+              <div class="queueNumber">
+                ${index + 1}
+              </div>
+
+              <div class="queuePlayers">
+
+                <strong>
+                  ${escapeHtml(player.name)}
+                </strong>
+
+                <div
+                  style="
+                    color:#777;
+                    font-size:11px;
+                    margin-top:3px;
+                  "
+                >
+                  ${stars(player.starTier)}
+                  · Elo ${player.elo}
+                  · ${player.gamesPlayed} games
+                </div>
+
+              </div>
+
+              <span class="badge badgeWaiting">
+                Waiting
+              </span>
+
+            </div>
+
+          `
+        )
+        .join('');
+    }
+
+
+    /* =========================================================
+       LEADERBOARD
+       ========================================================= */
+
+    function renderLeaderboard() {
+
+      const tbody =
+        document.getElementById(
+          'leaderboardTable'
+        );
+
+      const sorted =
+        [...app.players]
+          .sort(
+            (a, b) =>
+              Number(b.elo || 0) -
+              Number(a.elo || 0)
+          );
+
+      if (!sorted.length) {
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty">
+                <strong>
+                  No leaderboard data
+                </strong>
+
+                Register players to begin.
+              </div>
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+      tbody.innerHTML =
+        sorted.map(
+          (player, index) => `
+
+            <tr>
+
+              <td>
+                <strong>
+                  ${index + 1}
+                </strong>
+              </td>
+
+              <td>
+                <strong>
+                  ${escapeHtml(player.name)}
+                </strong>
+              </td>
+
+              <td>
+                ${player.elo}
+              </td>
+
+              <td>
+                ${player.gamesPlayed}
+              </td>
+
+              <td>
+                ${player.wins}
+              </td>
+
+              <td>
+                ${winPct(player)}%
+              </td>
+
+            </tr>
+
+          `
+        )
+        .join('');
+    }
+
+
+    /* =========================================================
+       PLAYER ACTIONS
+       ========================================================= */
+
+    async function checkIn(id) {
+
+      try {
+
+        const result =
+          await api(
+            'checkInPlayer',
+            {
+              playerId: id
+            }
+          );
+
+        applyState(
+          result.state
+        );
+
+        toast(
+          result.message ||
+          'Player checked in.',
+          'success'
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    async function checkOut(id) {
+
+      try {
+
+        const result =
+          await api(
+            'checkOutPlayer',
+            {
+              playerId: id
+            }
+          );
+
+        applyState(
+          result.state
+        );
+
+        toast(
+          result.message ||
+          'Player checked out.',
+          'success'
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    /* =========================================================
+       MATCH ACTIONS
+       ========================================================= */
+
+    async function completeMatch(
+      matchId,
+      winner
+    ) {
+
+      try {
+
+        const result =
+          await api(
+            'completeMatch',
+            {
+              matchId,
+              winner
+            }
+          );
+
+        applyState(
+          result.state
+        );
+
+        toast(
+          result.message ||
+          'Match completed.',
+          'success'
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    async function cancelMatch(
+      matchId
+    ) {
+
+      try {
+
+        const result =
+          await api(
+            'editMatch',
+            {
+              matchId,
+              mode: 'cancel'
+            }
+          );
+
+        applyState(
+          result.state
+        );
+
+        toast(
+          result.message ||
+          'Match cancelled.',
+          'success'
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    /* =========================================================
+       SESSION
+       ========================================================= */
+
+    async function toggleSession() {
+
+      try {
+
+        const action =
+          app.session.active
+            ? 'endSession'
+            : 'startSession';
+
+        const result =
+          await api(action);
+
+        applyState(
+          result.state
+        );
+
+        toast(
+          result.message ||
+          'Session updated.',
+          'success'
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    /* =========================================================
+       REGISTER
+       ========================================================= */
+
+    async function registerPlayer(
+      event
+    ) {
+
+      event.preventDefault();
+
+      const name =
+        document.getElementById(
+          'playerName'
+        ).value.trim();
+
+      const gender =
+        document.getElementById(
+          'playerGender'
+        ).value;
+
+      const starTier =
+        Number(
+          document.getElementById(
+            'playerStar'
+          ).value
+        );
+
+      if (!name) {
+        return;
+      }
+
+      try {
+
+        const result =
+          await api(
+            'registerPlayer',
+            {
+              name,
+              gender,
+              starTier
+            }
+          );
+
+        if (
+          result.duplicate
+        ) {
+
+          toast(
+            'A player with that name already exists.',
+            'error'
+          );
+
+          return;
+        }
+
+        applyState(
+          result.state
+        );
+
+        closeRegister();
+
+        document.getElementById(
+          'registerForm'
+        ).reset();
+
+        toast(
+          result.message ||
+          'Player registered.',
+          'success'
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    /* =========================================================
+       COURT COUNT
+       ========================================================= */
+
+    async function changeCourtCount(
+      amount
+    ) {
+
+      const next =
+        Number(
+          app.session.courtCount
+        ) + amount;
+
+      if (
+        next < 1 ||
+        next > 6
+      ) {
+        return;
+      }
+
+      try {
+
+        const result =
+          await api(
+            'setCourtCount',
+            {
+              courtCount: next
+            }
+          );
+
+        applyState(
+          result.state
+        );
+
+      } catch (error) {
+
+        toast(
+          error.message,
+          'error'
+        );
+      }
+    }
+
+
+    /* =========================================================
+       NAVIGATION
+       ========================================================= */
+
+    document
+      .querySelectorAll('.navBtn')
+      .forEach(
+        button => {
+
+          button.addEventListener(
+            'click',
+            () => {
+
+              const page =
+                button.dataset.page;
+
+              document
+                .querySelectorAll('.navBtn')
+                .forEach(
+                  item =>
+                    item.classList.remove(
+                      'active'
+                    )
+                );
+
+              button.classList.add(
+                'active'
+              );
+
+              document
+                .querySelectorAll('.page')
+                .forEach(
+                  section =>
+                    section.classList.remove(
+                      'active'
+                    )
+                );
+
+              document
+                .getElementById(
+                  `page-${page}`
+                )
+                .classList.add(
+                  'active'
+                );
+            }
+          );
+        }
+      );
+
+
+    /* =========================================================
+       MODAL
+       ========================================================= */
+
+    const registerModal =
+      document.getElementById(
+        'registerModal'
+      );
+
+    function openRegister() {
+      registerModal.classList.add(
+        'open'
+      );
+    }
+
+    function closeRegister() {
+      registerModal.classList.remove(
+        'open'
+      );
+    }
+
+    document
+      .getElementById(
+        'openRegister'
+      )
+      .addEventListener(
+        'click',
+        openRegister
+      );
+
+    document
+      .getElementById(
+        'closeRegister'
+      )
+      .addEventListener(
+        'click',
+        closeRegister
+      );
+
+    document
+      .getElementById(
+        'cancelRegister'
+      )
+      .addEventListener(
+        'click',
+        closeRegister
+      );
+
+    document
+      .getElementById(
+        'registerForm'
+      )
+      .addEventListener(
+        'submit',
+        registerPlayer
+      );
+
+
+    /* =========================================================
+       SESSION EVENTS
+       ========================================================= */
+
+    document
+      .getElementById(
+        'sessionButton'
+      )
+      .addEventListener(
+        'click',
+        toggleSession
+      );
+
+
+    document
+      .getElementById(
+        'courtMinus'
+      )
+      .addEventListener(
+        'click',
+        () =>
+          changeCourtCount(-1)
+      );
+
+
+    document
+      .getElementById(
+        'courtPlus'
+      )
+      .addEventListener(
+        'click',
+        () =>
+          changeCourtCount(1)
+      );
+
+
+    /* =========================================================
+       START
+       ========================================================= */
+
+    loadState();
+
+  </script>
+
+</body>
+</html>
