@@ -2,8 +2,11 @@
   "name": "phqueue",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "description": "PHQueue - Pad Habits Pickleball Queue",
+  "scripts": {
+    "dev": "vercel dev"
+  },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4"
+    "@supabase/supabase-js": "^2.57.0"
   }
 }
